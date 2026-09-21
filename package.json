@@ -1,0 +1,13 @@
+{
+  "name": "jobfinder",
+  "version": "0.8.0",
+  "private": true,
+  "description": "Agregator lowongan kerja kesehatan dengan pencocokan berbasis CV",
+  "scripts": {
+    "test": "node tests/matcher.test.js && node tests/email.test.js && node tests/check-secrets.test.js && node ingest/test.js",
+    "check": "node scripts/check-secrets.js",
+    "build": "node scripts/build-site.js",
+    "serve": "python3 -m http.server 8000"
+  },
+  "engines": { "node": ">=18" }
+}

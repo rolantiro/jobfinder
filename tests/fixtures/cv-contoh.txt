@@ -1,0 +1,23 @@
+KANDIDAT CONTOH (data fiktif untuk pengujian)
+Bekasi | kandidat@contoh.test
+
+PROFIL
+Lulusan rekam medis yang teliti dan disiplin, terbiasa bekerja dengan sistem RME.
+
+PENDIDIKAN
+Politeknik Kesehatan Contoh
+D3 Rekam Medis dan Informasi Kesehatan 2022 - 2025
+
+PENGALAMAN KERJA
+Petugas Pendaftaran Pasien, Klinik Pratama Contoh
+Jul 2024 - Des 2024
+- Melayani pendaftaran pasien dan filing berkas rekam medis
+- Input data ke rekam medis elektronik (RME)
+
+PRAKTIK KERJA LAPANGAN (PKL)
+PKL Rekam Medis, RSUD Contoh
+Jan 2025 - Mar 2025
+- Coding diagnosis dengan ICD-10 dan ICD-9-CM, audit rekam medis, statistik kesehatan
+
+KEAHLIAN
+Rekam Medis Elektronik, ICD-10, ICD-9-CM, Audit rekam medis, Pendaftaran pasien, Filing, Statistik kesehatan, Microsoft Office, QGIS

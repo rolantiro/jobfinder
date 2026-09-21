@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="JobFinder: agregator lowongan kerja bidang kesehatan dengan pencocokan berbasis CV.">
+<meta name="theme-color" content="#0d5c50">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E">
+<title>JobFinder - Agregator Lowongan Kesehatan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="hd">
+  <a class="logo" href="#/">Job<b>Finder</b></a>
+  <button id="mb" aria-label="Buka menu" aria-expanded="false">Menu</button>
+  <nav id="nav">
+    <a href="#/search">Cari Lowongan</a>
+    <a href="#/saved">Tersimpan</a>
+    <a href="#/cv">CV</a>
+    <a href="#/email">Email Lamaran</a>
+    <a href="#/profile">Profil</a>
+    <a href="#/about">Tentang</a>
+  </nav>
+</header>
+<main id="app"></main>
+<footer class="ft">JobFinder, JobFinder. Skor kecocokan adalah estimasi, bukan jaminan.</footer>
+<script src="js/vendor/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ontology.js"></script>
+<script src="js/cv.js"></script>
+<script src="js/matcher.js"></script>
+<script src="js/email.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/saved.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
