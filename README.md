@@ -80,3 +80,18 @@ CV dibaca di peramban dan tidak diunggah. Tidak ada analitik.
 - Belum semua rumah sakit cocok untuk ini: beberapa (RS Hermina, Siloam) memuat lowongan lewat JavaScript sehingga tidak dapat diambil otomatis oleh skrip sederhana; beberapa pengumuman RSUD hanya berupa lampiran PDF tanpa rincian di halamannya. Sumber seperti ini perlu ditambahkan manual atau dilewati.
 - Kegagalan pada satu sumber tidak menghentikan sumber lain; lihat riwayatnya di tab **Actions** repositori. Ini berlaku di dua tingkat: satu URL sumber yang gagal tidak menghentikan sumber lain, dan pada mode `--listing`, satu tautan lowongan yang gagal (mis. sudah dihapus) tidak menghentikan tautan lain di halaman indeks yang sama.
 - Lowongan yang sudah tidak relevan (skor di bawah 40) atau duplikat otomatis dilewati, bukan dihapus dari sumbernya.
+
+
+## Tambah lowongan dari gambar (khusus admin)
+Di `#/admin`, admin bisa mengunggah foto/screenshot poster lowongan (mis. dari Instagram). Teks dibaca dengan OCR **di browser** (Tesseract.js dari cdnjs, gratis, gambar tidak diunggah ke server mana pun), lalu admin memeriksa/mengedit hasilnya sebelum menyimpan.
+
+**Siapa yang bisa menjadi admin?** Hanya akun yang kolom `is_admin` di tabel `user_profiles` bernilai `true`. Kolom ini **tidak bisa diubah lewat aplikasi** (hak UPDATE atas kolom itu dicabut dari role `authenticated`, lihat `supabase/007_admin_write.sql`) — hanya bisa diubah lewat SQL Editor atau dashboard Supabase oleh Anda sendiri.
+
+**Menjadikan seseorang admin:**
+1. Orang itu harus sudah pernah masuk/daftar sekali di situs (halaman Profil), supaya barisnya ada di `user_profiles`.
+2. Jalankan di Supabase SQL Editor: `update public.user_profiles set is_admin = true where user_id = (select id from auth.users where email = 'email-mereka@contoh.com');`
+
+**Keterbatasan yang perlu diketahui:**
+- Hasil OCR pada poster bergaya (font dekoratif, latar berwarna) sering tidak sempurna. Formulir tetap bisa diisi/diperbaiki manual sepenuhnya walau OCR gagal membaca apa pun.
+- Kategori dan skor relevansi hanya tebakan awal dari judul dan teks poster; admin bisa mengubahnya sebelum menyimpan.
+- `dedupe_key` dihitung dengan algoritma yang sama persis dengan `ingest/lib.js` (SHA-1 dari judul+perusahaan+lokasi yang dinormalisasi), sehingga lowongan yang sama tidak akan tercatat dua kali meski satu masuk lewat otomatisasi dan satu lewat halaman ini.

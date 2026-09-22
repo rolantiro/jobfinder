@@ -295,6 +295,68 @@ async function emailPage(P) {
 
 async function initApp() { if (typeof sb !== "undefined" && sb) { JFP.init(sb); JFS.init(sb); } PROFILE = (await JFP.load()).profile; await JFS.load(); }
 
+
+async function adminPage() {
+  const u = await JFP.user();
+  if (!u) { app().innerHTML = `<section class="wrap narrow"><h1>Tambah Lowongan dari Gambar</h1><p class="nudge">Halaman ini khusus admin. <a href="#/profile">Masuk dulu</a> di halaman Profil.</p></section>`; return; }
+  let admin = false;
+  try { const { data, error } = await sb.from("user_profiles").select("is_admin").eq("user_id", u.id).maybeSingle(); if (error) throw error; admin = !!(data && data.is_admin); } catch (e) { console.warn(e); }
+  if (!admin) { app().innerHTML = `<section class="wrap narrow"><h1>Tambah Lowongan dari Gambar</h1><p class="gap">Akun ${esc(u.email)} bukan admin. Fitur ini dikunci supaya pengunjung lain tidak bisa menambah lowongan palsu ke situs publik.</p></section>`; return; }
+
+  app().innerHTML = `<section class="wrap narrow"><h1>Tambah Lowongan dari Gambar</h1>
+    <p class="note">Unggah foto atau screenshot poster lowongan (mis. dari Instagram). Teksnya dibaca di browser Anda (OCR), gambar tidak diunggah ke server mana pun. Hasil OCR sering tidak sempurna untuk poster bergambar — periksa dan perbaiki sebelum menyimpan.</p>
+    <div class="box"><label>Gambar poster lowongan<input type="file" id="af" accept="image/*"></label>
+      <div class="acts"><button class="btn" id="ago">Baca teks dari gambar</button></div>
+      <p id="amsg" class="note" aria-live="polite"></p><progress id="aprog" max="100" value="0" style="width:100%;display:none"></progress></div>
+    <div id="aform"></div></section>`;
+
+  const msg = t => { $("#amsg").textContent = t; };
+  const draw = (text) => {
+    const g = guessFrom(text);
+    $("#aform").innerHTML = `<div class="box">
+      <label>Judul posisi<input type="text" id="ft" value="${esc(g.title)}"></label>
+      <label>Nama perusahaan/rumah sakit<input type="text" id="fc" value="${esc(g.company)}"></label>
+      <label>Lokasi<input type="text" id="fl" value="${esc(g.location)}"></label>
+      <label>Kategori<select id="fcat">${Object.values(JFAdmin.CATS).concat("Lainnya").map(c => `<option ${c === g.category ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+      <label>Ringkasan / persyaratan (satu per baris untuk persyaratan)<textarea id="fd" rows="6">${esc(text)}</textarea></label>
+      <label>Sumber (dari mana Anda mendapat poster ini)<input type="text" id="fs" value="Instagram" placeholder="mis. Instagram @namaRS"></label>
+      <label>Skor relevansi perkiraan: <b>${g.score}</b> ${g.score < 40 ? "(di bawah 40: mungkin bukan bidang kesehatan/rekam medis, periksa lagi)" : ""}</label>
+      <div class="acts"><button class="btn" id="asave">Simpan lowongan</button></div></div>`;
+    $("#asave").onclick = async () => {
+      const title = $("#ft").value.trim(), company = $("#fc").value.trim(), location = $("#fl").value.trim();
+      if (!title || !company) return msg("Judul dan nama perusahaan wajib diisi.");
+      msg("Menyimpan…");
+      try {
+        const lines = $("#fd").value.split("\n").map(x => x.trim()).filter(Boolean);
+        const row = { title, company, location, city: location, description: lines.join(" "), requirements: lines.slice(0, 15),
+          category: $("#fcat").value, source_name: $("#fs").value.trim() || "Instagram", work_mode: "On-site",
+          ai_relevance_score: g.score, tags: [$("#fcat").value.toLowerCase()],
+          dedupe_key: await JFAdmin.dedupeKey(title, company, location) };
+        const { error } = await sb.from("jobs").insert(row);
+        if (error) throw error;
+        msg("Tersimpan. Lowongan sudah tampil di situs.");
+      } catch (e) { msg("Gagal menyimpan: " + e.message + (/duplicate|unique/i.test(e.message) ? " (kemungkinan lowongan ini sudah ada)" : "")); }
+    };
+  };
+  const guessFrom = text => {
+    const first = (text.split("\n").map(x => x.trim()).find(Boolean) || "").slice(0, 100);
+    const g = JFAdmin.guess(first, text);
+    return { title: first, company: "", location: "", category: g.category, score: g.score };
+  };
+  draw("");
+
+  $("#ago").onclick = async () => {
+    const f = $("#af").files[0]; if (!f) return msg("Pilih gambar dulu.");
+    $("#aprog").style.display = ""; $("#aprog").value = 0; msg("Membaca gambar (bisa memakan waktu beberapa detik)…");
+    try {
+      const text = await JFAdmin.ocr(f, p => { $("#aprog").value = p; msg("Membaca gambar… " + p + "%"); });
+      $("#aprog").style.display = "none";
+      if (!text.trim()) { msg("Tidak ada teks yang terbaca. Coba foto lebih jelas, atau isi form di bawah secara manual."); return; }
+      draw(text); msg("Selesai membaca. Periksa dan perbaiki hasilnya sebelum menyimpan — OCR sering salah baca font poster.");
+    } catch (e) { $("#aprog").style.display = "none"; msg("Gagal membaca gambar: " + e.message); }
+  };
+}
+
 // ---------- Router ----------
 function route() {
   const [p, qs] = location.hash.slice(1).split("?"), P = new URLSearchParams(qs || ""), a = (p || "/").split("/").filter(Boolean);
@@ -306,6 +368,7 @@ function route() {
   else if (a[0] === "job") detail(a[1]);
   else if (a[0] === "about") about();
   else if (a[0] === "cv") cvPage();
+  else if (a[0] === "admin") adminPage();
   else if (a[0] === "email") emailPage(P);
   else if (a[0] === "saved") savedPage();
   else if (a[0] === "profile") profilePage();

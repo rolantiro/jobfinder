@@ -75,3 +75,5 @@ textarea,input[type=email],input[type=password],#prof input{font:inherit;padding
 .tab{font:inherit;font-weight:700;padding:7px 16px;border:1px solid var(--line);border-radius:999px;background:var(--white);color:var(--ink);cursor:pointer}
 .tab.on{background:var(--pine);border-color:var(--pine);color:#fff}
 .ver label{display:grid;gap:4px;font-weight:500;margin-bottom:10px}.ver[hidden]{display:none}
+/* Halaman admin: tambah lowongan dari gambar */
+progress{accent-color:var(--pine);border-radius:4px;border:0;height:8px}
