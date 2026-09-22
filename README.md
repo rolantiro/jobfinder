@@ -65,3 +65,17 @@ CV dibaca di peramban dan tidak diunggah. Tidak ada analitik.
 - Data awal berasal dari halaman karier resmi Primaya Hospital (`ingest/data/primaya-2026-09-21.json`), diringkas dengan kata-kata sendiri. Halaman itu tidak bertanggal, jadi lowongan bisa sudah ditutup.
 - Menambah data: `node ingest/run.js --json berkas.json` (butuh `.env` dengan `SUPABASE_SERVICE_KEY`) atau `--url` untuk halaman lowongan publik yang mengizinkan robot.
 - `DEMO_FALLBACK` di `js/config.js` harus tetap `false` di produksi: bila Supabase tak terjangkau, situs menampilkan pesan galat, bukan data contoh.
+
+## Otomatisasi harian (lowongan baru masuk sendiri)
+`.github/workflows/ingest.yml` berjalan setiap hari (04:30 WIB) lewat GitHub Actions, membaca setiap URL di `ingest/sources.txt` dan memasukkan lowongan baru ke Supabase secara otomatis, tanpa n8n (Rp0, tidak perlu server menyala terus).
+
+**Cara mengaktifkan (sekali saja):**
+1. Di GitHub: **Settings > Secrets and variables > Actions > New repository secret**, buat secret bernama `SUPABASE_SERVICE_KEY`, isi dengan kunci **service_role** dari dashboard Supabase (**Settings > API Keys**). Jangan pernah menaruh kunci ini di kode atau file yang di-commit.
+2. Tanpa langkah 1, workflow akan gagal dengan pesan jelas di tab Actions, bukan diam-diam tidak berjalan.
+3. (Opsional) Untuk mengaktifkan AI pada halaman yang tidak punya data terstruktur (JSON-LD), tambahkan secret `AI_PROVIDER` = `gemini`, `GEMINI_API_KEY`, dan `AI_MODEL`. Tanpa ini, hanya halaman dengan markup `JobPosting` (schema.org) yang otomatis terambil.
+
+**Yang perlu diketahui:**
+- Hanya sumber di `ingest/sources.txt` yang diambil. Menambah sumber baru berarti menambah baris URL di file itu (halaman karier resmi rumah sakit yang mengizinkan robots.txt, bukan LinkedIn/JobStreet/Glints).
+- Belum semua rumah sakit cocok untuk ini: beberapa (RS Hermina, Siloam) memuat lowongan lewat JavaScript sehingga tidak dapat diambil otomatis oleh skrip sederhana; beberapa pengumuman RSUD hanya berupa lampiran PDF tanpa rincian di halamannya. Sumber seperti ini perlu ditambahkan manual atau dilewati.
+- Kegagalan pada satu sumber tidak menghentikan sumber lain; lihat riwayatnya di tab **Actions** repositori.
+- Lowongan yang sudah tidak relevan (skor di bawah 40) atau duplikat otomatis dilewati, bukan dihapus dari sumbernya.

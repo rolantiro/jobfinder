@@ -1,0 +1,4 @@
+# Satu URL per baris. Baris berawalan # diabaikan.
+# Dijalankan otomatis setiap hari oleh .github/workflows/ingest.yml
+# Tambah sumber baru di sini kapan saja (halaman karier resmi rumah sakit yang mengizinkan robots.txt).
+https://primayahospital.com/karir/

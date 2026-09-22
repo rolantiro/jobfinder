@@ -1,0 +1,26 @@
+name: Ambil lowongan baru
+# Berjalan otomatis setiap hari. Bisa juga dijalankan manual lewat tab Actions > Run workflow.
+on:
+  schedule:
+    - cron: "30 21 * * *"   # 21:30 UTC = 04:30 WIB
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Jalankan pipeline ingestion
+        env:
+          SUPABASE_URL: https://smrrtewmwporecppofkj.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          AI_PROVIDER: ${{ secrets.AI_PROVIDER || 'none' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          AI_MODEL: ${{ secrets.AI_MODEL }}
+        run: |
+          if [ -z "$SUPABASE_SERVICE_KEY" ]; then
+            echo "::error::Secret SUPABASE_SERVICE_KEY belum diatur di Settings > Secrets and variables > Actions. Lowongan baru tidak dapat disimpan."
+            exit 1
+          fi
+          node ingest/run.js --urls-file ingest/sources.txt --min-score 40
