@@ -64,6 +64,7 @@ CV dibaca di peramban dan tidak diunggah. Tidak ada analitik.
 - Lowongan contoh fiktif (id 1-9) **disembunyikan** dari publik lewat kolom `is_sample` (`supabase/006_hide_samples.sql`), tidak dihapus. Untuk menampilkannya lagi: `update public.jobs set is_sample = false where is_sample;`
 - Data awal berasal dari halaman karier resmi Primaya Hospital (`ingest/data/primaya-2026-09-21.json`), diringkas dengan kata-kata sendiri. Halaman itu tidak bertanggal, jadi lowongan bisa sudah ditutup.
 - Menambah data: `node ingest/run.js --json berkas.json` (butuh `.env` dengan `SUPABASE_SERVICE_KEY`) atau `--url` untuk halaman lowongan publik yang mengizinkan robot.
+- Untuk halaman **indeks** yang menautkan ke halaman detail per posisi (bukan satu halaman berisi semua lowongan), gunakan `--listing <url> --link-pattern "<pola>"`. Sistem menemukan tautan baru sendiri dari halaman indeks itu setiap kali dijalankan — cocok untuk situs yang menambah posisi baru di URL baru setiap saat (seperti RS Pondok Indah). Di `ingest/sources.txt`, tulis baris `LISTING|<url>|<pola>`.
 - `DEMO_FALLBACK` di `js/config.js` harus tetap `false` di produksi: bila Supabase tak terjangkau, situs menampilkan pesan galat, bukan data contoh.
 
 ## Otomatisasi harian (lowongan baru masuk sendiri)
@@ -77,5 +78,5 @@ CV dibaca di peramban dan tidak diunggah. Tidak ada analitik.
 **Yang perlu diketahui:**
 - Hanya sumber di `ingest/sources.txt` yang diambil. Menambah sumber baru berarti menambah baris URL di file itu (halaman karier resmi rumah sakit yang mengizinkan robots.txt, bukan LinkedIn/JobStreet/Glints).
 - Belum semua rumah sakit cocok untuk ini: beberapa (RS Hermina, Siloam) memuat lowongan lewat JavaScript sehingga tidak dapat diambil otomatis oleh skrip sederhana; beberapa pengumuman RSUD hanya berupa lampiran PDF tanpa rincian di halamannya. Sumber seperti ini perlu ditambahkan manual atau dilewati.
-- Kegagalan pada satu sumber tidak menghentikan sumber lain; lihat riwayatnya di tab **Actions** repositori.
+- Kegagalan pada satu sumber tidak menghentikan sumber lain; lihat riwayatnya di tab **Actions** repositori. Ini berlaku di dua tingkat: satu URL sumber yang gagal tidak menghentikan sumber lain, dan pada mode `--listing`, satu tautan lowongan yang gagal (mis. sudah dihapus) tidak menghentikan tautan lain di halaman indeks yang sama.
 - Lowongan yang sudah tidak relevan (skor di bawah 40) atau duplikat otomatis dilewati, bukan dihapus dari sumbernya.

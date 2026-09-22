@@ -35,3 +35,21 @@ const c = L.finalize({ title: "Medical Record Staff", company: "RS XYZ", city: "
 assert.equal(L.findDuplicate(c, [a]), null);
 assert.match(L.findDuplicate(L.finalize({ title: "Staff Rekam Medis Senior", company: "RS ABC", city: "Jakarta Selatan" }, {}), [{ title: "Staff Rekam Medis", company: "RS ABC", city: "Jakarta Selatan" }]) || "", /mirip/);
 console.log("Semua uji lolos.");
+
+// ---- discoverLinks: HTML nyata dari halaman indeks karier RS Pondok Indah (diambil 22 Sep 2026) ----
+const listingHtml = `<html><body>
+<a href="https://www.rspondokindah.co.id/career-detail/dokter-umum">Dokter Umum</a>
+<a href="https://www.rspondokindah.co.id/career-detail/perawat-umum">Perawat Umum</a>
+<a href="https://www.rspondokindah.co.id/career-detail/apoteker">Apoteker</a>
+<a href="/id/pages/about">Tentang Kami</a>
+<a href="https://www.facebook.com/RumahSakitPondokIndah">Facebook</a>
+<a href="https://www.rspondokindah.co.id/id/career#atas">Kembali ke atas</a>
+</body></html>`;
+const found = L.discoverLinks(listingHtml, "https://www.rspondokindah.co.id/id/career", /career-detail\//);
+assert.equal(found.length, 3, "hanya tautan career-detail/ yang cocok pola");
+assert.ok(found.includes("https://www.rspondokindah.co.id/career-detail/dokter-umum"));
+assert.ok(!found.some(u => u.includes("facebook.com")), "domain luar (Facebook) tidak ikut, meski bukan domain terblokir");
+assert.ok(!found.some(u => u.includes("about") || u.includes("#atas")), "tautan navigasi dan #fragment tidak ikut");
+const noPattern = L.discoverLinks(listingHtml, "https://www.rspondokindah.co.id/id/career", null);
+assert.equal(noPattern.length, 4, "tanpa pola: semua tautan domain sendiri, minus duplikat/fragment");
+console.log("Semua uji discoverLinks lolos.");

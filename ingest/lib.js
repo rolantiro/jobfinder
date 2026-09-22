@@ -121,4 +121,20 @@ function findDuplicate(row, pool, th = 0.8) {
   return null;
 }
 
-module.exports = { UA, sleep, isBlocked, robotsAllows, fetchPage, jsonLdJobs, pageText, classify, finalize, dedupeKey, findDuplicate };
+
+// ---- penemuan tautan dari halaman indeks/listing ----
+// Mengambil semua href dari halaman, menyaring yang cocok dengan pola (RegExp) dan berasal dari domain yang sama,
+// lalu mengembalikan URL absolut unik. Dipakai agar sumber baru (posisi baru di halaman karier) ditemukan sendiri,
+// tanpa perlu menghafal URL setiap lowongan satu per satu.
+function discoverLinks(html, baseUrl, pattern) {
+  const base = new URL(baseUrl), out = new Set();
+  for (const m of String(html || "").matchAll(/<a\b[^>]*\bhref\s*=\s*["']([^"'#]+)["']/gi)) {
+    let u; try { u = new URL(m[1], base); } catch { continue; }
+    if (u.hostname !== base.hostname) continue;
+    if (pattern && !pattern.test(u.pathname)) continue;
+    u.hash = ""; out.add(u.href);
+  }
+  return [...out];
+}
+
+module.exports = { UA, sleep, isBlocked, robotsAllows, fetchPage, jsonLdJobs, pageText, classify, finalize, dedupeKey, findDuplicate, discoverLinks };

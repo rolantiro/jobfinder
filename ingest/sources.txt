@@ -1,4 +1,6 @@
 # Satu URL per baris. Baris berawalan # diabaikan.
 # Dijalankan otomatis setiap hari oleh .github/workflows/ingest.yml
-# Tambah sumber baru di sini kapan saja (halaman karier resmi rumah sakit yang mengizinkan robots.txt).
+# Format: URL biasa = satu halaman berisi lowongan (seperti Primaya, semua posisi di satu halaman).
+# Untuk halaman indeks yang menautkan ke halaman detail per posisi, gunakan LISTING|<url>|<pola-tautan>
 https://primayahospital.com/karir/
+LISTING|https://www.rspondokindah.co.id/id/career|career-detail/
